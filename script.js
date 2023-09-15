@@ -4,9 +4,9 @@ let resume = document.getElementById("resume");
 function getdata() {
   event.preventDefault();
   console.log("data");
-  let id = uniqueId();
+  // let id = uniqueId();
   let obj = {
-    id: id,
+    id: data.length - 1,
     personal: {},
     education: [],
     work: [],
@@ -26,6 +26,9 @@ function getdata() {
     phone: phone.value,
     address: address.value,
   };
+
+  // let uniqueEducation = checkDuplicate(education, [arr]);
+
 
   for (let i = 0; i < education.length; i++) {
     let university = education[i].querySelector(".university").value;
@@ -52,12 +55,18 @@ function getdata() {
     let endDate = work[i].querySelector(".endDate").value;
     let jobDescription = work[i].querySelector(".jobDescription").value;
 
+    console.log("startDate", startDate, "endDate", endDate);
+
+    let validDate = compareDates(startDate, endDate);
+    console.log("validDate", validDate);
+
     if (
       !(jobTitle == "") &&
       !(company == "") &&
       !(startDate == "") &&
       !(endDate == "") &&
-      !(jobDescription == "")
+      !(jobDescription == "") &&
+      validDate
     ) {
       obj.work.push({
         jobTitle: jobTitle,
@@ -72,9 +81,16 @@ function getdata() {
     }
   }
 
-  for (let i = 0; i < skills.length; i++) {
-    let skillsValue = skills[i].querySelector(".skills").value;
+  let uniqueSkills = checkDuplicate(skills, ".skills");
+
+//   uniqueSkills.forEach((value) => {
+//     console.log("value" , value);
+// });
+uniqueSkills.forEach((value) => {
+    let skillsValue = value;
+    console.log("skillsvalue" , skills)
     if (!(skillsValue == "")) {
+      console.log("skills value pushed")
       obj.skills.push({
         skills: skillsValue,
       });
@@ -82,7 +98,7 @@ function getdata() {
       alert("fill all skills fields");
       return;
     }
-  }
+  });
 
   data.push(obj);
 
@@ -146,6 +162,7 @@ function generateResume(data, id) {
     let personalInfo = userData.personal;
     console.log(personalInfo);
     innerResumeDiv.innerHTML += `
+
     <section id="sec2">
           <section id="sec2-1">
             <div id="sec2-1-2">
@@ -202,26 +219,28 @@ function generateResume(data, id) {
               </h3>
               <p class="work-date">${item.graduationYear}</p>
             </div>`;
-            })}
-            
-            
-            
+            })}  
           </section>
           <hr />
-        </section>`;
+        </section>
+        <section>
+        <div id="section-edit">
+          <button onclick="editResume()">EDIT</button>
+        </div>
+      </section>`;
     resumeHtml.append(innerResumeDiv);
   } else {
     alert("User not found.");
   }
 }
 
-function uniqueId() {
-  const existingIds = data.map((user) => parseInt(user.id) || 0);
-  const highestId = Math.max(...existingIds);
-  // Generate a new unique ID by incrementing the highest ID
-  const newId = highestId + 1;
-  return newId;
-}
+// function uniqueId() {
+//   const existingIds = data.map((user) => parseInt(user.id) || 0);
+//   const highestId = Math.max(...existingIds);
+//   // Generate a new unique ID by incrementing the highest ID
+//   const newId = highestId + 1;
+//   return newId;
+// }
 
 function goBack() {
   resume.style.display = "none";
@@ -356,4 +375,26 @@ function addField(param) {
     });
     innerDivSkills.appendChild(removeButton);
   }
+}
+
+function compareDates(d1, d2) {
+  if (d1 < d2) {
+    return true; 
+  } else if (d1 > d2) {
+    alert("invalid dates");
+    return false; 
+  } else {
+    return true; 
+  }
+}
+
+function checkDuplicate(param, querySelector) {
+  console.log(param);
+  let arr = [];
+  for (let i = 0; i < param.length; i++) {
+    let duplicateValue = param[i].querySelector(querySelector).value.trim();
+    arr[i] = duplicateValue;
+  }
+  const uniqueSet = new Set(arr);
+  return uniqueSet;
 }
